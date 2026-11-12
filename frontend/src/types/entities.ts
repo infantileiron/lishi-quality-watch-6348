@@ -1,5 +1,8 @@
 export type User={email:string;name:string;role:string};
-export type Dataset={id:string;name:string;source:string;row_count:number;machines:string[]};
+export type Dataset={id:string;name:string;source:string;row_count:number;machines:string[];version:number;current_fingerprint:string;supplement_count:number;supplements:SupplementRef[]};
+export type SupplementRef={id:string;fingerprint:string;status:string;created_at:string;applied?:boolean};
+export type SupplementRow={sample_id:string;machine:string;sequence:number;value:number;before_value?:number;after_value?:number;reason:string};
+export type SupplementLog={id:string;dataset_id:string;source:string;status:string;fingerprint:string;applied:boolean;idempotent_replay?:boolean;added:SupplementRow[];corrected:SupplementRow[];duplicated:SupplementRow[];conflicts:SupplementRow[];invalid:(SupplementRow&{line:number})[];before_count:number;after_count:number;from_version:number;to_version:number;actor:string;note:string;created_at:string};
 export type Baseline={id:string;name:string;dataset_id:string;machine:string;start:number;end:number;values:number[];mean:number;sigma:number};
 export type Study={id:string;name:string;baseline_id:string;monitoring_start:number;monitoring_end:number;smoothing:number;control_width:number;lsl:number;usl:number};
 export type Sample={sample_id:string;sequence:number;value:number;ewma:number;center:number;lcl:number;ucl:number;out_of_control:boolean;out_of_spec:boolean};

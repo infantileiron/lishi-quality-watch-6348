@@ -11,6 +11,10 @@ class DatasetInput(InputModel):
  csv_text:str=Field(min_length=20,max_length=1000000)
 class RenameDataset(InputModel):
  name:str=Field(min_length=2,max_length=100)
+class SupplementInput(InputModel):
+ source:str=Field(default='shaft_diameter_202611_supplement.csv',max_length=100)
+ csv_text:str=Field(min_length=20,max_length=1000000)
+ note:str=Field(default='',max_length=500)
 class BaselineInput(InputModel):
  name:str=Field(min_length=2,max_length=100)
  dataset_id:str

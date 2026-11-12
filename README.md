@@ -8,6 +8,20 @@
 
 六实体：MeasurementDataset测量数据、BaselineWindow固定基线、ControlStudy控制方案、ControlRun计算运行、DeviationReview偏差复核、Report报告。六页：计量总览、单值测量、锁定基线、控制方案、漂移与能力、偏差复核。总览与结果共用真实ControlChart和CapabilityPanel。
 
+### 量测文件补传合入
+
+补传文件在「单值测量」页按目标测量文件合入，逐条比对样本编号与（机台，序号）自然键，结论分四类并在页面逐行列出原因：
+
+- **新增**：样本编号与机台序号均未出现，直接并入；
+- **更正**：同一样本编号的观测尺寸变更，或机台序号在目标键空闲时迁移；记录更正前后的尺寸与机台序号；
+- **原样重复**：样本编号、机台序号、尺寸完全一致，仅留痕不改数据；
+- **冲突**：样本编号与机台序号分别命中两条不同既有记录（归属互斥），或机台序号已被其他样本占用，或行内校验失败、文件内重复。
+
+存在任一冲突或无效行时**整批不生效、不写版本、不改观测**，但失败批次仍留存可追溯。数据集以内容SHA256指纹识别同一份补传文件，重复执行原样返回上次批次、不新增版本；不同文件但内容全重复则记为「原样未变」，同样不升版本。每次真实合入 `version+1`，并在数据集上保留全部补传批次引用（含来源、操作人、前后版本、观测数与逐条结论），页面可回溯每次补传前后的变化。
+
+已锁定基线在创建时固化样本值、均值与σ快照，因此补传更正不影响既有基线、运行、复核与报告，它们始终保留原测量依据；**新建**基线才读取更正后的当前数据。运行结果与报告CSV同样基于执行时的快照，补传不回改历史产物。
+
+
 ## 快速启动
 
 ```sh
@@ -56,7 +70,7 @@ EWMA：Z₀=μ₀，Zₜ=λxₜ+(1-λ)Zₜ₋₁。随t变化的控制界限为 
 | 算法 | Python statistics/math标准库 |
 | 持久化与异步 | PostgreSQL16 / Redis7.4 / 独立worker |
 
-`backend/src/{routes,controllers,services,models,schemas,middlewares,utils,constants,config}` 与 `frontend/src/{api,stores,types,components/common,hooks,pages,router,utils,constants}` 分离职责，76个职责源文件。PostgreSQL每实体表使用TEXT主键和JSON文本payload，DDL在backend/migrations/001_initial.sql；事务级advisory lock保护backend/worker首次建表并发。
+`backend/src/{routes,controllers,services,models,schemas,middlewares,utils,constants,config}` 与 `frontend/src/{api,stores,types,components,components/common,hooks,pages,router,utils,constants}` 分离职责，80个职责源文件。PostgreSQL每实体表使用TEXT主键和JSON文本payload，补传批次独立存于supplements表，DDL在backend/migrations/001_initial.sql；事务级advisory lock保护backend/worker首次建表并发。
 
 共享角色/运行/复核枚举：后端src/constants/enums.py；前端src/constants/enums.ts。类型在models/entities.py、schemas/entities.py及frontend/src/types/entities.ts中保持一致。
 

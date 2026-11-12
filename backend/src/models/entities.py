@@ -7,6 +7,30 @@ class MeasurementDataset:
  source:str
  rows:list[dict]
  created_at:str=''
+ version:int=1
+ current_fingerprint:str=''
+ supplement_count:int=0
+ supplements:list[dict]=field(default_factory=list)
+@dataclass
+class SupplementLog:
+ id:str
+ dataset_id:str
+ source:str
+ status:str
+ fingerprint:str
+ applied:bool
+ added:list[dict]=field(default_factory=list)
+ corrected:list[dict]=field(default_factory=list)
+ duplicated:list[dict]=field(default_factory=list)
+ conflicts:list[dict]=field(default_factory=list)
+ invalid:list[dict]=field(default_factory=list)
+ before_count:int=0
+ after_count:int=0
+ from_version:int=1
+ to_version:int=1
+ actor:str=''
+ note:str=''
+ created_at:str=''
 @dataclass
 class BaselineWindow:
  id:str
